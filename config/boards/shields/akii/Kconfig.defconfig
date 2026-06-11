@@ -1,0 +1,6 @@
+if SHIELD_AKII
+
+config ZMK_KEYBOARD_NAME
+    default "AKII"
+
+endif

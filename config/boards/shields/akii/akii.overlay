@@ -1,0 +1,139 @@
+/*
+ * AKII -- Apple Keyboard II replica
+ * XIAO nRF52840 + 2x MCP23017 I2C GPIO expanders
+ *
+ * Hardware facts (verified against board netlist):
+ *   mcp_c @ 0x20: GPA0-7 (exp pins 0-7)  = COL8..COL15
+ *                 GPB7   (exp pin 15)    = COL16
+ *                 GPB6   (exp pin 14)    = COL17
+ *   mcp_r @ 0x24: GPA0-4 (exp pins 0-4)  = ROW0..ROW4   (A2=3V3 -> addr 0x24)
+ *                 GPB7..GPB0 (15..8)     = COL0..COL7
+ *   Encoder EC11: A=XIAO D0, B=XIAO D1, push switch=XIAO D2 (ext. pull-ups fitted)
+ *
+ * Scanning scheme: diodes are physically COL->ROW (QMK "COL2ROW").
+ * MCP23017 has internal pull-UPS only (no pull-downs), so we scan
+ * QMK-style: drive a row LOW, read columns with pull-ups, active low.
+ * In ZMK terms that means diode-direction "row2col" (rows are outputs)
+ * with every pin declared GPIO_ACTIVE_LOW.
+ */
+
+#include <dt-bindings/zmk/matrix_transform.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <zephyr/dt-bindings/i2c/i2c.h>
+
+&xiao_i2c {
+    status = "okay";
+    clock-frequency = <I2C_BITRATE_FAST>;   /* 400 kHz, MCP23017 supports it */
+
+    mcp_c: mcp23017@20 {
+        compatible = "microchip,mcp23017";
+        reg = <0x20>;
+        gpio-controller;
+        #gpio-cells = <2>;
+        ngpios = <16>;
+        status = "okay";
+    };
+
+    mcp_r: mcp23017@24 {
+        compatible = "microchip,mcp23017";
+        reg = <0x24>;
+        gpio-controller;
+        #gpio-cells = <2>;
+        ngpios = <16>;
+        status = "okay";
+    };
+};
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+        zmk,matrix-transform = &default_transform;
+    };
+
+    kscan_matrix: kscan_matrix {
+        compatible = "zmk,kscan-gpio-matrix";
+        diode-direction = "row2col";
+        wakeup-source;
+
+        /* rows = outputs, driven low one at a time */
+        row-gpios
+            = <&mcp_r 0 GPIO_ACTIVE_LOW>   /* ROW0 */
+            , <&mcp_r 1 GPIO_ACTIVE_LOW>   /* ROW1 */
+            , <&mcp_r 2 GPIO_ACTIVE_LOW>   /* ROW2 */
+            , <&mcp_r 3 GPIO_ACTIVE_LOW>   /* ROW3 */
+            , <&mcp_r 4 GPIO_ACTIVE_LOW>   /* ROW4 */
+            ;
+
+        /* cols = inputs with pull-ups, read active-low */
+        col-gpios
+            = <&mcp_r 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL0  = R GPB7 */
+            , <&mcp_r 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL1  = R GPB6 */
+            , <&mcp_r 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL2  = R GPB5 */
+            , <&mcp_r 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL3  = R GPB4 */
+            , <&mcp_r 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL4  = R GPB3 */
+            , <&mcp_r 10 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL5  = R GPB2 */
+            , <&mcp_r  9 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL6  = R GPB1 */
+            , <&mcp_r  8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL7  = R GPB0 */
+            , <&mcp_c  0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL8  = C GPA0 */
+            , <&mcp_c  1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL9  = C GPA1 */
+            , <&mcp_c  2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL10 = C GPA2 */
+            , <&mcp_c  3 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL11 = C GPA3 */
+            , <&mcp_c  4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL12 = C GPA4 */
+            , <&mcp_c  5 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL13 = C GPA5 */
+            , <&mcp_c  6 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL14 = C GPA6 */
+            , <&mcp_c  7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL15 = C GPA7 */
+            , <&mcp_c 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL16 = C GPB7 */
+            , <&mcp_c 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>   /* COL17 = C GPB6 */
+            ;
+    };
+
+    /* encoder push switch on XIAO D2 (external 10k pull-up fitted) */
+    kscan_direct: kscan_direct {
+        compatible = "zmk,kscan-gpio-direct";
+        input-gpios = <&xiao_d 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+    };
+
+    kscan0: kscan_composite {
+        compatible = "zmk,kscan-composite";
+        rows = <5>;
+        columns = <19>;
+
+        matrix {
+            kscan = <&kscan_matrix>;
+        };
+
+        direct {
+            kscan = <&kscan_direct>;
+            column-offset = <18>;   /* encoder click lands on RC(0,18) */
+        };
+    };
+
+    default_transform: keymap_transform_0 {
+        compatible = "zmk,matrix-transform";
+        columns = <19>;
+        rows = <5>;
+        /* visual order, matches the keymap row by row */
+        map = <
+RC(0,0) RC(0,1) RC(0,2) RC(0,3) RC(0,4) RC(0,5) RC(0,6) RC(0,7) RC(0,8) RC(0,9) RC(0,10) RC(0,11) RC(0,12) RC(0,13) RC(0,14) RC(0,15) RC(0,16) RC(0,17)
+RC(1,0) RC(1,1) RC(1,2) RC(1,3) RC(1,4) RC(1,5) RC(1,6) RC(1,7) RC(1,8) RC(1,9) RC(1,10) RC(1,11) RC(1,12) RC(1,13) RC(1,14) RC(1,15) RC(1,16) RC(1,17)
+RC(2,0) RC(2,1) RC(2,2) RC(2,3) RC(2,4) RC(2,5) RC(2,6) RC(2,7) RC(2,8) RC(2,9) RC(2,10) RC(2,11) RC(2,12)          RC(2,14) RC(2,15) RC(2,16) RC(2,17)
+RC(3,0) RC(3,1) RC(3,2) RC(3,3) RC(3,4) RC(3,5) RC(3,6) RC(3,7) RC(3,8) RC(3,9) RC(3,10)          RC(3,12)          RC(3,14) RC(3,15) RC(3,16) RC(4,17)
+RC(4,0) RC(4,1) RC(4,2)                 RC(4,5)                 RC(4,9) RC(4,10) RC(4,11) RC(4,12) RC(4,13)                   RC(4,15) RC(4,16)
+RC(0,18)
+        >;
+    };
+
+    encoder: encoder {
+        compatible = "alps,ec11";
+        a-gpios = <&xiao_d 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+        b-gpios = <&xiao_d 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+        steps = <60>;               /* EC11E15244B2: 15 PPR -> 60 quadrature steps */
+        status = "okay";
+    };
+
+    sensors: sensors {
+        compatible = "zmk,keymap-sensors";
+        sensors = <&encoder>;
+        triggers-per-rotation = <30>;   /* 30 detents; halve/double if steps feel off */
+    };
+};
