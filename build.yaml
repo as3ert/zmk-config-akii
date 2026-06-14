@@ -2,3 +2,5 @@
 include:
   - board: xiao_ble//zmk
     shield: akii
+    snippet: studio-rpc-usb-uart
+    cmake-args: -DCONFIG_ZMK_STUDIO=y

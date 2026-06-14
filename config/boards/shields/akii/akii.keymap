@@ -2,7 +2,8 @@
  * AKII keymap -- faithful Apple Keyboard II layout, top-left key is ESC.
  * Layer 1 (hold FN, the key left of the arrows): F1-F12 on the number row,
  * grave on ESC, forward-delete on delete, Home/End/PgUp/PgDn on arrows,
- * Bluetooth on Q-T/Y, output switch on U/B, bootloader on Clear.
+ * Bluetooth on Q-T/Y, output switch on U/B, bootloader on Clear,
+ * ZMK Studio unlock on the keypad = key (right of Clear).
  * Encoder: volume (fn: brightness). Encoder click: mute.
  */
 #include <behaviors.dtsi>
@@ -30,7 +31,7 @@
         fn_layer {
             display-name = "fn";
             bindings = <
-&kp GRAVE &kp F1 &kp F2 &kp F3 &kp F4 &kp F5 &kp F6 &kp F7 &kp F8 &kp F9 &kp F10 &kp F11 &kp F12 &kp DEL &bootloader &trans &trans &trans
+&kp GRAVE &kp F1 &kp F2 &kp F3 &kp F4 &kp F5 &kp F6 &kp F7 &kp F8 &kp F9 &kp F10 &kp F11 &kp F12 &kp DEL &bootloader &studio_unlock &trans &trans
 &trans &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &bt BT_CLR &out OUT_USB &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &out OUT_BLE &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
