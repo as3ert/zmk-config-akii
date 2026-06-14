@@ -4,7 +4,6 @@
  * grave on ESC, forward-delete on delete, Home/End/PgUp/PgDn on arrows,
  * Bluetooth on Q-T/Y, output switch on U/B, bootloader on Clear,
  * ZMK Studio unlock on the keypad = key (right of Clear).
- * Encoder: volume (fn: brightness). Encoder click: mute.
  */
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
@@ -23,9 +22,7 @@
 &kp CAPS &kp A &kp S &kp D &kp F &kp G &kp H &kp J &kp K &kp L &kp SEMI &kp SQT &kp RET &kp KP_N4 &kp KP_N5 &kp KP_N6 &kp KP_PLUS
 &kp LSHFT &kp Z &kp X &kp C &kp V &kp B &kp N &kp M &kp COMMA &kp DOT &kp FSLH &kp RSHFT &kp KP_N1 &kp KP_N2 &kp KP_N3 &kp KP_ENTER
 &kp LCTRL &kp LALT &kp LGUI &kp SPACE &mo 1 &kp LEFT &kp DOWN &kp UP &kp RIGHT &kp KP_N0 &kp KP_DOT
-&kp C_MUTE
             >;
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
         };
 
         fn_layer {
@@ -36,9 +33,7 @@
 &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &out OUT_BLE &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &kp HOME &kp PG_DN &kp PG_UP &kp END &trans &trans
-&trans
             >;
-            sensor-bindings = <&inc_dec_kp C_BRI_UP C_BRI_DN>;
         };
     };
 };

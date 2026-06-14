@@ -8,7 +8,6 @@
  *                 GPB6   (exp pin 14)    = COL17
  *   mcp_r @ 0x24: GPA0-4 (exp pins 0-4)  = ROW0..ROW4   (A2=3V3 -> addr 0x24)
  *                 GPB7..GPB0 (15..8)     = COL0..COL7
- *   Encoder EC11: A=XIAO D0, B=XIAO D1, push switch=XIAO D2 (ext. pull-ups fitted)
  *
  * Scanning scheme: diodes are physically COL->ROW (QMK "COL2ROW").
  * MCP23017 has internal pull-UPS only (no pull-downs), so we scan
@@ -47,7 +46,7 @@
 
 / {
     chosen {
-        zmk,kscan = &kscan0;
+        zmk,kscan = &kscan_matrix;
         zmk,physical-layout = &physical_layout0;
     };
 
@@ -88,30 +87,9 @@
             ;
     };
 
-    /* encoder push switch on XIAO D2 (external 10k pull-up fitted) */
-    kscan_direct: kscan_direct {
-        compatible = "zmk,kscan-gpio-direct";
-        input-gpios = <&xiao_d 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-    };
-
-    kscan0: kscan_composite {
-        compatible = "zmk,kscan-composite";
-        rows = <5>;
-        columns = <19>;
-
-        matrix {
-            kscan = <&kscan_matrix>;
-        };
-
-        direct {
-            kscan = <&kscan_direct>;
-            column-offset = <18>;   /* encoder click lands on RC(0,18) */
-        };
-    };
-
     default_transform: keymap_transform_0 {
         compatible = "zmk,matrix-transform";
-        columns = <19>;
+        columns = <18>;
         rows = <5>;
         /* visual order, matches the keymap row by row */
         map = <
@@ -120,15 +98,13 @@ RC(1,0) RC(1,1) RC(1,2) RC(1,3) RC(1,4) RC(1,5) RC(1,6) RC(1,7) RC(1,8) RC(1,9) 
 RC(2,0) RC(2,1) RC(2,2) RC(2,3) RC(2,4) RC(2,5) RC(2,6) RC(2,7) RC(2,8) RC(2,9) RC(2,10) RC(2,11) RC(2,12)          RC(2,14) RC(2,15) RC(2,16) RC(2,17)
 RC(3,0) RC(3,1) RC(3,2) RC(3,3) RC(3,4) RC(3,5) RC(3,6) RC(3,7) RC(3,8) RC(3,9) RC(3,10)          RC(3,12)          RC(3,14) RC(3,15) RC(3,16) RC(4,17)
 RC(4,0) RC(4,1) RC(4,2)                 RC(4,5)                 RC(4,9) RC(4,10) RC(4,11) RC(4,12) RC(4,13)                   RC(4,15) RC(4,16)
-RC(0,18)
         >;
     };
 
     /* Physical key positions for ZMK Studio. Coordinates (centi-keyunits,
      * 1u = 100) lifted straight from the QMK plate layout, so they match the
      * real board: 2u Delete, 2.25u Return, 2.75u right Shift, 6.25u space,
-     * 2u keypad-0, 2u-tall keypad Enter. Key order MUST match default_transform.
-     * The encoder click (last entry) is parked top-right of the numpad. */
+     * 2u keypad-0, 2u-tall keypad Enter. Key order MUST match default_transform. */
     physical_layout0: physical_layout_0 {
         compatible = "zmk,physical-layout";
         display-name = "AKII";
@@ -220,22 +196,7 @@ RC(0,18)
             , <&key_physical_attrs 100 100  1400  400    0  0  0>   /* RIGHT */
             , <&key_physical_attrs 200 100  1600  400    0  0  0>   /* KP0   */
             , <&key_physical_attrs 100 100  1800  400    0  0  0>   /* KP.   */
-            /* encoder click (no plate position; parked top-right) */
-            , <&key_physical_attrs 100 100  2050    0    0  0  0>   /* ENC   */
             ;
     };
 
-    encoder: encoder {
-        compatible = "alps,ec11";
-        a-gpios = <&xiao_d 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        b-gpios = <&xiao_d 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        steps = <60>;               /* EC11E15244B2: 15 PPR -> 60 quadrature steps */
-        status = "okay";
-    };
-
-    sensors: sensors {
-        compatible = "zmk,keymap-sensors";
-        sensors = <&encoder>;
-        triggers-per-rotation = <30>;   /* 30 detents; halve/double if steps feel off */
-    };
 };
