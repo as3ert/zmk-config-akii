@@ -5,7 +5,9 @@ manifest:
   projects:
     - name: zmk
       remote: zmkfirmware
-      revision: main
+      # Pinned (was: main) so the power-saving kscan work builds against a
+      # stable kscan API and doesn't bitrot on upstream. Commit 2026-06-07.
+      revision: ff09f2d0c9f13a868c8f71d71d9348ade438e4b6
       import: app/west.yml
   self:
     path: config

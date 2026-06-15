@@ -55,6 +55,16 @@
         diode-direction = "row2col";
         wakeup-source;
 
+        /* TIER-2 STEP 1 -- zero-code power experiment.
+         * Polling mode scans every poll-period-ms. Slowing it from the
+         * default (~10ms) to 50ms cuts average current a lot, at the cost
+         * of up to 50ms latency on EVERY keystroke (not just first-after-idle).
+         * Flash this, measure idle current on the Fluke + test typing feel:
+         *   - feels fine        -> maybe no custom driver needed, just tune this
+         *   - feels laggy/drops -> justifies the two-tier kscan driver (step 2)
+         * Try 30 / 50 / 80 to taste. Revert (delete this line) for stock feel. */
+        poll-period-ms = <50>;
+
         /* rows = outputs, driven low one at a time */
         row-gpios
             = <&mcp_r 0 GPIO_ACTIVE_LOW>   /* ROW0 */
