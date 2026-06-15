@@ -158,3 +158,13 @@ RC(4,0) RC(4,1) RC(4,2)                 RC(4,5)                 RC(4,9) RC(4,10)
     };
 
 };
+
+/* Power: disable the onboard P25Q16H external QSPI NOR flash. ZMK never uses it
+ * -- settings (BLE bonds + ZMK Studio keymaps) live in storage_partition on the
+ * INTERNAL flash0 (verified at ZMK ff09f2d / zephyr v4.1.0+zmk-fixes), so this
+ * does NOT touch persistence. Stops the nRF52840 QSPI peripheral from staying
+ * initialized at idle, cutting ~0.2-0.3mA off System-ON idle (0.57 -> ~0.3mA).
+ * (Full ~1mA would need a custom bootloader; out of scope.) */
+&qspi {
+    status = "disabled";
+};
