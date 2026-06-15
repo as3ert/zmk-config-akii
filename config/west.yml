@@ -5,8 +5,12 @@ manifest:
   projects:
     - name: zmk
       remote: zmkfirmware
-      # Pinned (was: main) so the power-saving kscan work builds against a
-      # stable kscan API and doesn't bitrot on upstream. Commit 2026-06-07.
+      # Pinned (was: main) to a fixed Zephyr (v4.1.0+zmk-fixes, via ZMK's
+      # app/west.yml) so the custom kscan driver doesn't bitrot on upstream.
+      # NOTE: the kscan subsystem is marked DEPRECATED in this Zephyr; the build
+      # is clean today, but a future Zephyr bump may require migrating the
+      # driver (kscan_driver_api / CONFIG_KSCAN_INIT_PRIORITY) to the input
+      # subsystem. Commit 2026-06-07.
       revision: ff09f2d0c9f13a868c8f71d71d9348ade438e4b6
       import: app/west.yml
   self:

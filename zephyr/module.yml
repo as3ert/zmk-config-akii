@@ -1,0 +1,8 @@
+# Makes this user-config repo a Zephyr module so ZMK's build picks up the
+# out-of-tree two-tier kscan driver (drivers/) and its binding (dts/bindings/).
+name: akii
+build:
+  cmake: .
+  kconfig: Kconfig
+  settings:
+    dts_root: .
