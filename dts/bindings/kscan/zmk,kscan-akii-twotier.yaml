@@ -1,0 +1,39 @@
+description: |
+  AKII two-tier kscan driver. Owns both MCP23017 expanders over raw I2C.
+  The node sits on the I2C bus; "reg" is the column-side expander (mcp_c)
+  and "addr-rows" is the row-side expander (mcp_r).
+
+compatible: "zmk,kscan-akii-twotier"
+
+include: [kscan.yaml, i2c-device.yaml]
+
+properties:
+  addr-rows:
+    type: int
+    required: true
+    description: I2C address of the row-side MCP23017 (rows + COL0-7).
+
+  idle-poll-period-ms:
+    type: int
+    default: 80
+    description: Summary-read interval while idle.
+
+  active-poll-period-ms:
+    type: int
+    default: 5
+    description: Full matrix scan interval while active.
+
+  idle-timeout-ms:
+    type: int
+    default: 750
+    description: No-activity time before dropping from active to idle.
+
+  debounce-press-ms:
+    type: int
+    default: 5
+    description: Debounce time; rounded up to a whole number of active scans.
+
+  debounce-release-ms:
+    type: int
+    default: 5
+    description: Reserved for symmetric debounce (currently uses press value).

@@ -1,0 +1,16 @@
+config ZMK_KSCAN_AKII_TWOTIER
+    bool "AKII two-tier MCP23017 kscan driver"
+    default y if DT_HAS_ZMK_KSCAN_AKII_TWOTIER_ENABLED
+    depends on I2C
+    select KSCAN
+    help
+      Custom two-tier keyboard scanner for the AKII board's 2x MCP23017 I2C
+      expanders, talked to over raw I2C (no gpio-controller driver).
+
+      ACTIVE: full matrix scan every active-poll-period-ms -> stock feel.
+      IDLE:   after idle-timeout-ms of no activity, drive all rows low and do a
+              cheap "any column pulled low?" summary read every
+              idle-poll-period-ms; any key down jumps back to ACTIVE.
+
+      Gets idle current down to the slow-poll floor (~0.4mA on this board)
+      while keeping typing latency at the active-scan rate.
