@@ -54,7 +54,7 @@
         compatible = "zmk,kscan-gpio-matrix";
         diode-direction = "row2col";
         wakeup-source;
-        poll-period-ms = <30>;
+        poll-period-ms = <80>;
 
         /* rows = outputs, driven low one at a time */
         row-gpios
