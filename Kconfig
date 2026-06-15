@@ -1,8 +1,11 @@
 config ZMK_KSCAN_AKII_TWOTIER
     bool "AKII two-tier MCP23017 kscan driver"
     default y if DT_HAS_ZMK_KSCAN_AKII_TWOTIER_ENABLED
-    depends on I2C
-    select KSCAN
+    # depends on (not select) KSCAN: ZMK_KSCAN already selects KSCAN (default y)
+    # and provides CONFIG_KSCAN_INIT_PRIORITY. `select KSCAN` here creates a
+    # Kconfig recursive-dependency loop (KSCAN subtree -> GPIO kscan -> I2C),
+    # so we depend on it instead.
+    depends on I2C && KSCAN
     help
       Custom two-tier keyboard scanner for the AKII board's 2x MCP23017 I2C
       expanders, talked to over raw I2C (no gpio-controller driver).
