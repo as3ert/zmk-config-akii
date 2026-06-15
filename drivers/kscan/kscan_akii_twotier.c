@@ -143,6 +143,9 @@ static int mcp_init(const struct akii_config *cfg)
 
 static void report_change(struct akii_data *data, int r, int c, bool pressed)
 {
+    /* DBG line format matches tools/matrix_test.py EVENT_RE for bring-up
+     * verification (only emitted on a debounced change, not every scan). */
+    LOG_DBG("Row: %d, column: %d, pressed: %s", r, c, pressed ? "true" : "false");
     if (data->callback) {
         data->callback(data->dev, r, c, pressed);
     }

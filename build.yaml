@@ -1,6 +1,15 @@
 ---
 include:
+  # Daily firmware: ZMK Studio over USB.
   - board: xiao_ble//zmk
     shield: akii
     snippet: studio-rpc-usb-uart
     cmake-args: -DCONFIG_ZMK_STUDIO=y
+    artifact-name: akii-twotier
+  # Bring-up firmware: no Studio (frees the USB CDC), USB serial logging at
+  # DBG so the two-tier driver's "Row: r, column: c, pressed: ..." lines stream
+  # out for tools/matrix_test.py to check off every key.
+  - board: xiao_ble//zmk
+    shield: akii
+    cmake-args: -DCONFIG_ZMK_USB_LOGGING=y -DCONFIG_ZMK_LOG_LEVEL_DBG=y
+    artifact-name: akii-bringup
