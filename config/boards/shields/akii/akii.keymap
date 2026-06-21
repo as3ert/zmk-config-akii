@@ -1,8 +1,25 @@
 /*
  * AKII keymap -- faithful Apple Keyboard II layout, top-left key is ESC.
- * Layer 1 (hold FN, the key left of the arrows): F1-F12 on the number row,
- * grave on ESC, forward-delete on delete, Home/End/PgUp/PgDn on arrows,
- * Bluetooth on Q-T/Y, output switch on U/B, bootloader on Clear.
+ *
+ * Layer 0 (base)  : Mac layout. Modifiers (left of space) = Ctrl / Option / Cmd.
+ * Layer 1 (fn)    : hold FN (key left of the arrows).
+ *     number row  -> F1-F12, ESC -> grave, Backspace -> forward-delete
+ *     arrows      -> Home / PgDn / PgUp / End
+ *     A/S/D       -> volume down / mute / volume up   (left-hand media cluster)
+ *     F/G         -> brightness down / up
+ *     Z/X/C       -> prev / play-pause / next
+ *     Q           -> "to Mac"     macro (BLE out + BT profile 0 + base layer)
+ *     W           -> "to Windows" macro (BLE out + BT profile 1 + win layer)
+ *     E/R/T       -> BT profiles 2/3/4, Y -> BT clear, U -> USB out, B -> BLE out
+ *     Clear(Numlock) -> bootloader
+ * Layer 2 (win)   : Windows host. SAME layout as Mac (everything transparent
+ *     falls through to base), EXCEPT the bottom-left modifiers are swapped so
+ *     Mac muscle memory works on Windows:
+ *         Cmd  key (GUI position) -> Ctrl   (so Cmd+C  becomes Ctrl+C)
+ *         Ctrl key                -> GUI    (gives you a real Windows key)
+ *         Option                  -> Alt    (unchanged)
+ *     Switch in/out with FN+W (enter) / FN+Q (back to Mac).
+ *
  * ZMK Studio stays unlocked by default (CONFIG_ZMK_STUDIO_LOCKING=n).
  */
 #include <behaviors.dtsi>
@@ -11,6 +28,26 @@
 #include <dt-bindings/zmk/outputs.h>
 
 / {
+    macros {
+        /* One press = pick the host AND match the keymap to that OS.
+         * out OUT_BLE first so the profile switch actually routes over BLE;
+         * if you're on USB and want to stay on USB, just hit FN+U after. */
+        to_mac: to_mac {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <0>;
+            tap-ms = <5>;
+            bindings = <&macro_tap &out OUT_BLE &bt BT_SEL 0 &to 0>;
+        };
+        to_win: to_win {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <0>;
+            tap-ms = <5>;
+            bindings = <&macro_tap &out OUT_BLE &bt BT_SEL 1 &to 2>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
@@ -29,10 +66,21 @@
             display-name = "fn";
             bindings = <
 &kp GRAVE &kp F1 &kp F2 &kp F3 &kp F4 &kp F5 &kp F6 &kp F7 &kp F8 &kp F9 &kp F10 &kp F11 &kp F12 &kp DEL &bootloader &trans &trans &trans
-&trans &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &bt BT_CLR &out OUT_USB &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
-&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
-&trans &trans &trans &trans &trans &out OUT_BLE &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
+&trans &to_mac &to_win &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &bt BT_CLR &out OUT_USB &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
+&trans &kp C_VOL_DN &kp C_MUTE &kp C_VOL_UP &kp C_BRI_DN &kp C_BRI_UP &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
+&trans &kp C_PREV &kp C_PP &kp C_NEXT &trans &out OUT_BLE &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
 &trans &trans &trans &trans &trans &kp HOME &kp PG_DN &kp PG_UP &kp END &trans &trans
+            >;
+        };
+
+        win_layer {
+            display-name = "win";
+            bindings = <
+&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
+&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
+&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
+&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans
+&kp LGUI &trans &kp LCTRL &trans &trans &trans &trans &trans &trans &trans &trans
             >;
         };
     };
