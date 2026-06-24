@@ -31,7 +31,7 @@
         compatible = "zmk,kscan-akii-twotier";
         reg = <0x20>;
         addr-rows = <0x24>;
-        idle-poll-period-ms = <80>;
+        idle-poll-period-ms = <25>;
         active-poll-period-ms = <5>;
         idle-timeout-ms = <750>;
         debounce-press-ms = <5>;
